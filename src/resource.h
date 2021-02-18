@@ -12,7 +12,7 @@ enum rpki_policy {
 	 * If certificate `x`'s resources are not a subset of `x - 1`'s
 	 * resources, then `x` is to be rejected.
 	 */
-	RPKI_POLICY_RFC6484,
+	RPKI_POLICY_RFC6487,
 	/**
 	 * If certificate `x`'s resources are not a subset of `x - 1`'s
 	 * resources, then the overclaiming resources are to be ignored.

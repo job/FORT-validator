@@ -41,7 +41,7 @@ resources_create(bool force_inherit)
 	result->ip4s = NULL;
 	result->ip6s = NULL;
 	result->asns = NULL;
-	result->policy = RPKI_POLICY_RFC6484;
+	result->policy = RPKI_POLICY_RFC6487;
 	result->force_inherit = force_inherit;
 
 	return result;
@@ -141,14 +141,8 @@ add_prefix4(struct resources *resources, IPAddress_t *addr)
 		return error;
 
 	if (parent && !res4_contains_prefix(parent->ip4s, &prefix)) {
-		switch (resources->policy) {
-		case RPKI_POLICY_RFC6484:
-			return pr_val_err("Parent certificate doesn't own IPv4 prefix '%s/%u'.",
+		return pr_val_warn("Certificate is overclaiming the IPv4 prefix '%s/%u'.",
 			    v4addr2str(&prefix.addr), prefix.len);
-		case RPKI_POLICY_RFC8360:
-			return pr_val_warn("Certificate is overclaiming the IPv4 prefix '%s/%u'.",
-			    v4addr2str(&prefix.addr), prefix.len);
-		}
 	}
 
 	if (resources->ip4s == NULL) {
@@ -186,14 +180,8 @@ add_prefix6(struct resources *resources, IPAddress_t *addr)
 		return error;
 
 	if (parent && !res6_contains_prefix(parent->ip6s, &prefix)) {
-		switch (resources->policy) {
-		case RPKI_POLICY_RFC6484:
-			return pr_val_err("Parent certificate doesn't own IPv6 prefix '%s/%u'.",
-			    v6addr2str(&prefix.addr), prefix.len);
-		case RPKI_POLICY_RFC8360:
-			return pr_val_warn("Certificate is overclaiming the IPv6 prefix '%s/%u'.",
-			    v6addr2str(&prefix.addr), prefix.len);
-		}
+		return pr_val_warn("Certificate is overclaiming the IPv6 prefix '%s/%u'.",
+		    v6addr2str(&prefix.addr), prefix.len);
 	}
 
 	if (resources->ip6s == NULL) {
@@ -244,14 +232,8 @@ add_range4(struct resources *resources, IPAddressRange_t *input)
 		return error;
 
 	if (parent && !res4_contains_range(parent->ip4s, &range)) {
-		switch (resources->policy) {
-		case RPKI_POLICY_RFC6484:
-			return pr_val_err("Parent certificate doesn't own IPv4 range '%s-%s'.",
-			    v4addr2str(&range.min), v4addr2str2(&range.max));
-		case RPKI_POLICY_RFC8360:
-			return pr_val_warn("Certificate is overclaiming the IPv4 range '%s-%s'.",
-			    v4addr2str(&range.min), v4addr2str2(&range.max));
-		}
+		return pr_val_warn("Certificate is overclaiming the IPv4 range '%s-%s'.",
+		    v4addr2str(&range.min), v4addr2str2(&range.max));
 	}
 
 	if (resources->ip4s == NULL) {
@@ -290,14 +272,8 @@ add_range6(struct resources *resources, IPAddressRange_t *input)
 		return error;
 
 	if (parent && !res6_contains_range(parent->ip6s, &range)) {
-		switch (resources->policy) {
-		case RPKI_POLICY_RFC6484:
-			return pr_val_err("Parent certificate doesn't own IPv6 range '%s-%s'.",
-			    v6addr2str(&range.min), v6addr2str2(&range.max));
-		case RPKI_POLICY_RFC8360:
-			return pr_val_warn("Certificate is overclaiming the IPv6 range '%s-%s'.",
-			    v6addr2str(&range.min), v6addr2str2(&range.max));
-		}
+		return pr_val_warn("Certificate is overclaiming the IPv6 range '%s-%s'.",
+		    v6addr2str(&range.min), v6addr2str2(&range.max));
 	}
 
 	if (resources->ip6s == NULL) {
@@ -444,14 +420,8 @@ add_asn(struct resources *resources, unsigned long min, unsigned long max,
 		return pr_val_err("The ASN range %lu-%lu is inverted.", min, max);
 
 	if (parent && !rasn_contains(parent->asns, min, max)) {
-		switch (resources->policy) {
-		case RPKI_POLICY_RFC6484:
-			return pr_val_err("Parent certificate doesn't own ASN range '%lu-%lu'.",
-			    min, max);
-		case RPKI_POLICY_RFC8360:
-			return pr_val_warn("Certificate is overclaiming the ASN range '%lu-%lu'.",
-			    min, max);
-		}
+		return pr_val_warn("Certificate is overclaiming the ASN range '%lu-%lu'.",
+		    min, max);
 	}
 
 	if (resources->asns == NULL) {

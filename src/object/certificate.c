@@ -1158,18 +1158,11 @@ certificate_get_resources(X509 *cert, struct resources *resources,
 	enum rpki_policy policy;
 
 	policy = resources_get_policy(resources);
-	switch (policy) {
-	case RPKI_POLICY_RFC6484:
-		return __certificate_get_resources(cert, resources,
-		    NID_sbgp_ipAddrBlock, NID_sbgp_autonomousSysNum,
-		    nid_ipAddrBlocksv2(), nid_autonomousSysIdsv2(),
-		    "6484", "8360", type != BGPSEC);
-	case RPKI_POLICY_RFC8360:
+	if ((policy == RPKI_POLICY_RFC6487) || (policy == RPKI_POLICY_RFC8360))
 		return __certificate_get_resources(cert, resources,
 		    nid_ipAddrBlocksv2(), nid_autonomousSysIdsv2(),
 		    NID_sbgp_ipAddrBlock, NID_sbgp_autonomousSysNum,
-		    "8360", "6484", type != BGPSEC);
-	}
+		    "8360", "6487", type != BGPSEC);
 
 	pr_crit("Unknown policy: %u", policy);
 }
@@ -1699,7 +1692,7 @@ handle_cp(X509_EXTENSION *ext, void *arg)
 	nid_cp = OBJ_obj2nid(pi->policyid);
 	if (nid_cp == nid_certPolicyRpki()) {
 		if (policy != NULL)
-			*policy = RPKI_POLICY_RFC6484;
+			*policy = RPKI_POLICY_RFC6487;
 	} else if (nid_cp == nid_certPolicyRpkiV2()) {
 		pr_val_debug("Found RFC8360 policy!");
 		if (policy != NULL)
